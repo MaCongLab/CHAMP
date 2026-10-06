@@ -15,13 +15,12 @@ import torch.nn.functional as F
 
 class Prot_model(torch.nn.Module):
 
-    def __init__(self,feat_dim,aac_emb_dim,class_num):
+    def __init__(self,aac_emb_dim,class_num,esm_model_path='ESMplusplus_small'):
         super().__init__()
-        self.activation = nn.ELU(alpha=0.5)
+        self.activation = nn.ELU(0.5)
         device = 'cuda'
         self.aac_emb = nn.Embedding(55,padding_idx=1,embedding_dim=aac_emb_dim)
-        self.feat_dim = feat_dim
-        self.esm_model = AutoModelForMaskedLM.from_pretrained('Synthyra/ESMplusplus_small',trust_remote_code=True)
+        self.esm_model = AutoModelForMaskedLM.from_pretrained(esm_model_path,trust_remote_code=True,local_files_only=True)
 
         self.seq_1pcnn_kernel1 = nn.Sequential(
             nn.Conv1d(in_channels=aac_emb_dim, out_channels=aac_emb_dim * 2, kernel_size=1),
@@ -126,4 +125,3 @@ class Prot_model(torch.nn.Module):
         out_final = self.out_ln(total_h)
         return out_final
         # return None
-
